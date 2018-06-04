@@ -173,7 +173,7 @@ function clean_directory($directory, $age_in_seconds)
          { 
          	if (filemtime ($dir . DIRECTORY_SEPARATOR . $value)  < (time() - $age_in_seconds) )
          	{
-         		delete ($dir . DIRECTORY_SEPARATOR . $value);
+         		unlink ($dir . DIRECTORY_SEPARATOR . $value);
          	} 
          } 
    } 
