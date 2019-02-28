@@ -39,8 +39,8 @@ function check_within_rate_limit($resource, $limit_group, $rate_per_period, $per
 	$maximum_rate_age_in_seconds = MAXIMUM_RATE_AGE_IN_SECONDS;
 	$rate_counter = 0;
 	
-	//Remove any trailing slashes
-	while (strlen($rate_limiter_folder) > 1 && substr ( $rate_limiter_folder , -1 ) == DIRECTORY_SEPARATOR)
+	//Make sure there is no trailing slash
+	if (strlen($rate_limiter_folder) > 1 && substr ( $rate_limiter_folder , -1 ) == DIRECTORY_SEPARATOR)
 	{
 		$rate_limiter_folder = substr ( $rate_limiter_folder , 0, -1 );
 	}
@@ -54,7 +54,7 @@ function check_within_rate_limit($resource, $limit_group, $rate_per_period, $per
 		}
 	}
 	
-	$resource_hash = hash('sha256', $resource); //hash for uniqueness and to avoid inappropriate characters
+	$resource_hash = hash('sha256', $resource);
 	//check folder exists and create if it doesn't
 	if (!file_exists ( $rate_limiter_folder. DIRECTORY_SEPARATOR .$resource_hash ))
 	{
@@ -64,8 +64,7 @@ function check_within_rate_limit($resource, $limit_group, $rate_per_period, $per
 		}
 	}
 	
-	$limit_group_hash = hash('sha256', $limit_group); //hash for uniqueness and to avoid inappropriate characters
-
+	$limit_group_hash = hash('sha256', $limit_group);
 	//check file exists and create if it doesn't
 	if ( !file_exists ( $rate_limiter_folder.DIRECTORY_SEPARATOR .$resource_hash. DIRECTORY_SEPARATOR .$limit_group_hash ) || filemtime ( $rate_limiter_folder. DIRECTORY_SEPARATOR .$resource_hash. DIRECTORY_SEPARATOR .$limit_group_hash ) < (time() - $maximum_rate_age_in_seconds) )
 	{
@@ -93,7 +92,7 @@ function check_within_rate_limit($resource, $limit_group, $rate_per_period, $per
 			
 			if (rand (1 , 1000) == 1)
 			{
-				clean_directory($rate_limiter_folder. DIRECTORY_SEPARATOR .$resource_hash. DIRECTORY_SEPARATOR, $age_in_seconds);
+				clean_directory($rate_limiter_folder. DIRECTORY_SEPARATOR .$resource_hash. DIRECTORY_SEPARATOR, $maximum_rate_age_in_seconds);
 			}
 			
 			
@@ -114,12 +113,12 @@ function check_within_rate_limit($resource, $limit_group, $rate_per_period, $per
 		}
 		
 		
+		
 		$rate_counter = intval(($filesize)/11); //10 characters for unix epoch time (in seconds) + 1 for newline char
-		
-		
+		//check if there are enough characters to see if we need to even to count the number of events
 		$file_handle = fopen($rate_limiter_folder. DIRECTORY_SEPARATOR .$resource_hash. DIRECTORY_SEPARATOR .$limit_group_hash, 'a+');
 		
-		//check if there are enough characters to see if we even need to count the number of events
+		
 		if ($rate_counter >= $rate_per_period)
 		{
 			fseek ($file_handle , (-11*($rate_per_period)), SEEK_END);
@@ -150,7 +149,7 @@ function check_within_rate_limit($resource, $limit_group, $rate_per_period, $per
 	//Only spend the time to cleanup the files in the folder every so often
 	if (rand (1 , 1000) == 1)
 	{
-		clean_directory($rate_limiter_folder. DIRECTORY_SEPARATOR .$resource_hash , $age_in_seconds);
+		clean_directory($rate_limiter_folder. DIRECTORY_SEPARATOR .$resource_hash , $maximum_rate_age_in_seconds);
 	}
 
 	if ($rate_counter >= $rate_per_period)
@@ -166,8 +165,8 @@ function check_within_rate_limit($resource, $limit_group, $rate_per_period, $per
 function clean_directory($directory, $age_in_seconds)
 {
 
-   $cdir = scandir($directory); 
-   foreach ($cdir as $key => $value) 
+   $dir = scandir($directory); 
+   foreach ($dir as $key => $value) 
    { 
          if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) 
          { 
