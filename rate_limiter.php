@@ -168,11 +168,11 @@ function clean_directory($directory, $age_in_seconds)
    $dir = scandir($directory); 
    foreach ($dir as $key => $value) 
    { 
-         if (!is_dir($dir . DIRECTORY_SEPARATOR . $value)) 
+         if (!is_dir($directory . DIRECTORY_SEPARATOR . $value)) 
          { 
-         	if (filemtime ($dir . DIRECTORY_SEPARATOR . $value)  < (time() - $age_in_seconds) )
+         	if (filemtime ($directory . DIRECTORY_SEPARATOR . $value)  < (time() - $age_in_seconds) )
          	{
-         		unlink ($dir . DIRECTORY_SEPARATOR . $value);
+         		unlink ($directory . DIRECTORY_SEPARATOR . $value);
          	} 
          } 
    } 
